@@ -19,7 +19,11 @@ Requires:
 The resulting `Role` resource will be printed to stdout in YAML format.
 
 ```bash
-$ ./generate-role.py
+$ python3 generate-role.py
+2020-01-03 11:41:54,534 - INFO - Gathering core API resource details
+2020-01-03 11:41:54,534 - INFO - Gathering API groups & resource details
+2020-01-03 11:41:59,661 - INFO - Resource discovery complete. Found 76 resources in 19 API groups
+2020-01-03 11:41:59,661 - INFO - Converting resources to rbac.authorization.k8s.io/v1/Role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -44,9 +48,15 @@ rules:
 You can also redirect the output to a file and create your new Roles from the generated manifest as a starting point:
 
 ```bash
-$ ./generate-role.py > foo-role.yaml
+$ python3 generate-role.py > foo-role.yaml
+2020-01-03 11:42:07,417 - INFO - Gathering core API resource details
+2020-01-03 11:42:07,417 - INFO - Gathering API groups & resource details
+2020-01-03 11:42:12,676 - INFO - Resource discovery complete. Found 76 resources in 19 API groups
+2020-01-03 11:42:12,677 - INFO - Converting resources to rbac.authorization.k8s.io/v1/Role
+
 $ kubeval foo-role.yaml
-PASS - foo-role.yaml is a valid Role
+PASS - foo-role.yaml contains a valid Role
+
 $ kubectl apply -f foo-role.yaml
-role/foo-role created
+role.rbac.authorization.k8s.io/foo-role created
 ```

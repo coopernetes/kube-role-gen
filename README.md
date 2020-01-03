@@ -19,10 +19,29 @@ Requires:
 The resulting `Role` resource will be printed to stdout in YAML format.
 
 ```bash
-./generate-role.py
+$ ./generate-role.py
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: foo-role
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - bindings
+  - pods/binding
+  - pods/eviction
+  verbs:
+  - create
+- apiGroups:
+  - ''
+  resources:
+  - componentstatuses
+  verbs:
+...
 ```
 
-## Validation
+You can also redirect the output to a file and create your new Roles from the generated manifest as a starting point:
 
 ```bash
 $ ./generate-role.py > foo-role.yaml

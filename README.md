@@ -1,6 +1,6 @@
 # Generate a Kubernetes RBAC Role
 
-This script will generate a valid Kubernetes RBAC role that contains every resource available on a cluster, including subresources. It will walk the API of the connected cluster and gather all available resources. All discovered resources will be grouped by their unique API group & supported verbs combinations so a complete & granular RBAC role may be created.
+This binary will generate a valid Kubernetes RBAC role that contains every resource available on a cluster, including subresources. It will walk the API of the connected cluster and gather all available resources. All discovered resources will be grouped by their unique API group & supported verbs combinations so a complete & granular RBAC role may be created.
 
 This is useful when you want to define a broad RBAC role that has access to _most_ objects but is disallowed from viewing a subset. Until Kubernetes supports [substraction via role aggregation](https://github.com/kubernetes/kubernetes/issues/70387), this script is useful as a starting point.
 
@@ -8,18 +8,33 @@ Another use case is defining a role that relies heavily on sub-resources. Sub-re
 
 This script was based on [this original bash implementation](https://stackoverflow.com/a/57892189).
 
+## Install
+
+Ensure that your GOPATH is included in your path:
+
+```bash
+PATH="$PATH:$(go env GOPATH)/bin"
+```
+
+```bash
+GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
+```
+
 ## Usage
 
-Requires:
+```bash
+$ kube-role-gen -h
+Generate a Kubernetes role with every available resource type on a cluster.
+Arguments:
 
-* Python 3.7+
-
-* kubectl
+  -n,--name - specify the name of the emitted Role. Default is 'foo-role'
+  --include-deprecated - include API groups that are deprecated. By default, API groups such as "extensions" are excluded.
+```
 
 The resulting `Role` resource will be printed to stdout in YAML format.
 
 ```bash
-$ python3 generate-role.py
+$ kube-role-gen
 2020-01-03 11:41:54,534 - INFO - Gathering core API resource details
 2020-01-03 11:41:54,534 - INFO - Gathering API groups & resource details
 2020-01-03 11:41:59,661 - INFO - Resource discovery complete. Found 76 resources in 19 API groups
@@ -48,7 +63,7 @@ rules:
 You can also redirect the output to a file and create your new Roles from the generated manifest as a starting point:
 
 ```bash
-$ python3 generate-role.py > foo-role.yaml
+$ kube-role-gen > foo-role.yaml
 2020-01-03 11:42:07,417 - INFO - Gathering core API resource details
 2020-01-03 11:42:07,417 - INFO - Gathering API groups & resource details
 2020-01-03 11:42:12,676 - INFO - Resource discovery complete. Found 76 resources in 19 API groups

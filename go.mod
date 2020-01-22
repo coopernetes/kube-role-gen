@@ -1,4 +1,4 @@
-module kube-role-gen
+module github.com/coopernetes/kube-role-gen
 
 go 1.13
 

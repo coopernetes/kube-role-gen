@@ -1,14 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"flag"
-	"os"
-	"path/filepath"
+	"fmt"
+	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"path/filepath"
 )
-
 
 func main() {
 	var kubeconfig *string
@@ -30,18 +33,43 @@ func main() {
 		panic(err.Error())
 	}
 
-	// resource_list_by_verb := map[string][]string
-
-	resourceListArray, err := clientset.Discovery().ServerResources()
+	completeRbac := &rbacv1.ClusterRole{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ClusterRole",
+			APIVersion: "rbac.authorization.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "foo-role",
+		},
+	}
+	apiResourceListArray, err := clientset.Discovery().ServerResources()
 	if err != nil {
 		panic(err.Error())
 	}
-	for _, resourceList := range resourceListArray {
-		for _, resource := range resourceList.APIResources {
-			fmt.Printf("Group Version: %s\tResource: %s\n", resourceList.GroupVersion,resource.Name)
-		}
-	}
+	for _, apiResourceList := range apiResourceListArray {
+		resources := []string{}
 
+		for _, apiResource := range apiResourceList.APIResources {
+			fmt.Printf("Group Name: %s\tResource: %s\n", apiResourceList.GroupVersion, apiResource.Name)
+			resources = append(resources, apiResource.Name)
+			verbs := apiResource.Verbs.String()
+			fmt.Printf("Verbs: %s", verbs)
+			// s := []string{verbs, apiResourceList.Kind}
+
+		}
+		// rbacRules[createKey(s)] = "myValue"
+	}
+	serializer := k8sJson.NewSerializer(k8sJson.DefaultMetaFactory, nil, nil, true)
+	var writer = bytes.NewBufferString("")
+	e := serializer.Encode(completeRbac, writer)
+	if e != nil {
+		panic(e.Error())
+	}
+	fmt.Printf("Complete RBAC object: %s", writer.String())
+}
+
+func createKey(s []string) string {
+	return fmt.Sprintf("%q", s)
 }
 
 func homeDir() string {

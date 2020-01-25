@@ -47,25 +47,21 @@ func main() {
 		panic(err.Error())
 	}
 	for _, apiResourceList := range apiResourceListArray {
-		resources := []string{}
-
 		for _, apiResource := range apiResourceList.APIResources {
-			fmt.Printf("Group Name: %s\tResource: %s\n", apiResourceList.GroupVersion, apiResource.Name)
-			resources = append(resources, apiResource.Name)
-			verbs := apiResource.Verbs.String()
-			fmt.Printf("Verbs: %s", verbs)
-			// s := []string{verbs, apiResourceList.Kind}
+			fmt.Printf("\n\tGroup Name: %s\n\tResource: %s\n\tVerbs: %s\n",
+				apiResourceList.GroupVersion,
+				apiResource.Name,
+				apiResource.Verbs.String())
 
 		}
-		// rbacRules[createKey(s)] = "myValue"
 	}
-	serializer := k8sJson.NewSerializer(k8sJson.DefaultMetaFactory, nil, nil, true)
+	serializer := k8sJson.NewYAMLSerializer(k8sJson.DefaultMetaFactory, nil, nil)
 	var writer = bytes.NewBufferString("")
 	e := serializer.Encode(completeRbac, writer)
 	if e != nil {
 		panic(e.Error())
 	}
-	fmt.Printf("Complete RBAC object: %s", writer.String())
+	fmt.Printf("\nComplete RBAC object: \n\n%s", writer.String())
 }
 
 func createKey(s []string) string {

@@ -28,17 +28,12 @@ Generate a Kubernetes role with every available resource type on a cluster.
 Arguments:
 
   -n,--name - specify the name of the emitted Role. Default is 'foo-role'
-  --include-deprecated - include API groups that are deprecated. By default, API groups such as "extensions" are excluded.
 ```
 
 The resulting `Role` resource will be printed to stdout in YAML format.
 
 ```bash
 $ kube-role-gen
-2020-01-03 11:41:54,534 - INFO - Gathering core API resource details
-2020-01-03 11:41:54,534 - INFO - Gathering API groups & resource details
-2020-01-03 11:41:59,661 - INFO - Resource discovery complete. Found 76 resources in 19 API groups
-2020-01-03 11:41:59,661 - INFO - Converting resources to rbac.authorization.k8s.io/v1/Role
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -64,10 +59,17 @@ You can also redirect the output to a file and create your new Roles from the ge
 
 ```bash
 $ kube-role-gen > foo-role.yaml
-2020-01-03 11:42:07,417 - INFO - Gathering core API resource details
-2020-01-03 11:42:07,417 - INFO - Gathering API groups & resource details
-2020-01-03 11:42:12,676 - INFO - Resource discovery complete. Found 76 resources in 19 API groups
-2020-01-03 11:42:12,677 - INFO - Converting resources to rbac.authorization.k8s.io/v1/Role
+2020/02/07 22:42:54 Group: v1
+2020/02/07 22:42:54 Resource: bindings - Verbs: [create]
+2020/02/07 22:42:54 Resource: componentstatuses - Verbs: [get list]
+2020/02/07 22:42:54 Resource: configmaps - Verbs: [create delete deletecollection get list patch update watch]
+2020/02/07 22:42:54 Resource: endpoints - Verbs: [create delete deletecollection get list patch update watch]
+2020/02/07 22:42:54 Resource: events - Verbs: [create delete deletecollection get list patch update watch]
+2020/02/07 22:42:54 Resource: limitranges - Verbs: [create delete deletecollection get list patch update watch]
+2020/02/07 22:42:54 Resource: namespaces - Verbs: [create delete get list patch update watch]
+2020/02/07 22:42:54 Resource: namespaces/finalize - Verbs: [update]
+2020/02/07 22:42:54 Resource: namespaces/status - Verbs: [get patch update]
+...
 
 $ kubeval foo-role.yaml
 PASS - foo-role.yaml contains a valid Role

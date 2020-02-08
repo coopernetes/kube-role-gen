@@ -48,7 +48,7 @@ func main() {
 
 	for _, apiResourceList := range apiResourceListArray {
 
-		log.Printf("\n\tAPI Group: %s", apiResourceList.GroupVersion)
+		log.Printf("Group: %s", apiResourceList.GroupVersion)
 		// rbac rules only look at API group names, not name & version
 		groupOnly := strings.Split(apiResourceList.GroupVersion, "/")[0]
 		// core API doesn't have a group "name". In rbac policy rules, its a blank string
@@ -59,8 +59,7 @@ func main() {
 		resourceList := make([]string, 0)
 		uniqueVerbs := make(map[string]bool)
 		for _, apiResource := range apiResourceList.APIResources {
-			log.Printf("\n\tGroup Name: %s\n\tResource: %s\n\tVerbs: %s\n",
-				groupOnly,
+			log.Printf("Resource: %s - Verbs: %s",
 				apiResource.Name,
 				apiResource.Verbs.String())
 
@@ -70,12 +69,7 @@ func main() {
 			}
 		}
 
-		verbList := make([]string, len(uniqueVerbs))
-		i := 0
-		for k := range uniqueVerbs {
-			verbList[i] = k
-			i++
-		}
+		verbList := mapSetToList(uniqueVerbs)
 
 		newPolicyRule := &rbacv1.PolicyRule{
 			APIGroups: []string{groupOnly},
@@ -106,6 +100,16 @@ func main() {
 		return
 	}
 	fmt.Println(writer.String())
+}
+
+func mapSetToList(initialMap map[string]bool) []string {
+	list := make([]string, len(initialMap))
+	i := 0
+	for k := range initialMap {
+		list[i] = k
+		i++
+	}
+	return list
 }
 
 func homeDir() string {

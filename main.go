@@ -87,7 +87,7 @@ func main() {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "foo-role",
+			Name: "foo-clusterrole",
 		},
 		Rules: computedPolicyRules,
 	}

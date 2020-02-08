@@ -6,7 +6,7 @@ This is useful when you want to define a broad RBAC role that has access to _mos
 
 Another use case is defining a role that relies heavily on sub-resources. Sub-resources such as `pod/exec` do not show up in any static list such as `kubectl api-resources -o wide` and must be discovered by walking the Kubernetes API. See this [stackoverflow answer for additional details](https://stackoverflow.com/a/51289417).
 
-This script was based on [this original bash implementation](https://stackoverflow.com/a/57892189).
+This utility was inspired by [this original bash implementation](https://stackoverflow.com/a/57892189).
 
 ## Install
 
@@ -27,17 +27,18 @@ $ kube-role-gen -h
 Generate a Kubernetes role with every available resource type on a cluster.
 Arguments:
 
-  -n,--name - specify the name of the emitted Role. Default is 'foo-role'
+  -n,--name - specify the name of the emitted Role. Default is 'foo-clusterrole'
 ```
 
-The resulting `Role` resource will be printed to stdout in YAML format.
+The resulting `ClusterRole` resource will be printed to stdout in YAML format.
 
 ```bash
 $ kube-role-gen
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  name: foo-role
+  creationTimestamp: null
+  name: foo-clusterrole
 rules:
 - apiGroups:
   - ''
@@ -55,10 +56,10 @@ rules:
 ...
 ```
 
-You can also redirect the output to a file and create your new Roles from the generated manifest as a starting point:
+You can also redirect the output to a file and create your new roles from the generated manifest as a starting point:
 
 ```bash
-$ kube-role-gen > foo-role.yaml
+$ kube-role-gen > foo-clusterrole.yaml
 2020/02/07 22:42:54 Group: v1
 2020/02/07 22:42:54 Resource: bindings - Verbs: [create]
 2020/02/07 22:42:54 Resource: componentstatuses - Verbs: [get list]
@@ -71,9 +72,9 @@ $ kube-role-gen > foo-role.yaml
 2020/02/07 22:42:54 Resource: namespaces/status - Verbs: [get patch update]
 ...
 
-$ kubeval foo-role.yaml
-PASS - foo-role.yaml contains a valid Role
+$ kubeval foo-clusterrole.yaml
+PASS - foo-clusterrole.yaml contains a valid ClusterRole
 
-$ kubectl apply -f foo-role.yaml
-role.rbac.authorization.k8s.io/foo-role created
+$ kubectl apply -f foo-clusterrole.yaml
+clusterrole.rbac.authorization.k8s.io/foo-clusterrole created
 ```

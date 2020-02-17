@@ -30,9 +30,7 @@ jobs:
     - name: Validate kind cluster is running
       run: |
         kubectl cluster-info
-
-    - name: Kubernetes tests
-      uses: stefanprodan/kube-tools@v1
-      with:
-        command: |
-          tests/valid-cr.sh
+        wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+        tar xf kubeval-linux-amd64.tar.gz
+        sudo cp kubeval /usr/local/bin
+        tests/k8s.sh

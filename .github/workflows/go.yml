@@ -15,22 +15,21 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Get dependencies
+    - name: Get dependencies & install
       run: |
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-
-    - name: Build
-      run: go build -v .    
+        go install -v .
 
     - uses: engineerd/setup-kind@v0.3.0
-    - name: Validate kind cluster is running
+    - name: Run Kubernetes tests
       run: |
         kubectl cluster-info
-        wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+        wget -q --show-progress https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
         tar xf kubeval-linux-amd64.tar.gz
         sudo cp kubeval /usr/local/bin
+        export PATH="$(go env GOPATH)/bin:$PATH" 
         tests/k8s.sh

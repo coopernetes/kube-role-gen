@@ -1,4 +1,4 @@
-name: Go
+name: build
 on: [push]
 jobs:
 
@@ -28,7 +28,7 @@ jobs:
     - name: Run Kubernetes tests
       run: |
         kubectl cluster-info
-        wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+        wget -q --show-progress https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
         tar xf kubeval-linux-amd64.tar.gz
         sudo cp kubeval /usr/local/bin
         export PATH="$(go env GOPATH)/bin:$PATH" 

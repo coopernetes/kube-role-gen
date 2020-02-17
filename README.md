@@ -24,10 +24,12 @@ GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
 
 ```bash
 $ kube-role-gen -h
-Generate a Kubernetes role with every available resource type on a cluster.
-Arguments:
-
-  -n,--name - specify the name of the emitted Role. Default is 'foo-clusterrole'
+Usage of kube-role-gen:
+  -kubeconfig string
+        (optional) absolute path to the kubeconfig file (default "/home/tom/.kube/config")
+  -name string
+        Override the name of the ClusterRole resource that is generated (default "foo-clusterrole")
+  -v    Enable verbose logging
 ```
 
 The resulting `ClusterRole` resource will be printed to stdout in YAML format.
@@ -41,18 +43,19 @@ metadata:
   name: foo-clusterrole
 rules:
 - apiGroups:
-  - ''
+  - ""
   resources:
   - bindings
-  - pods/binding
-  - pods/eviction
-  verbs:
-  - create
-- apiGroups:
-  - ''
-  resources:
   - componentstatuses
-  verbs:
+  - configmaps
+  - endpoints
+  - events
+  - limitranges
+  - namespaces
+  - namespaces/finalize
+  - namespaces/status
+  - nodes
+  - nodes/proxy
 ...
 ```
 
@@ -60,17 +63,6 @@ You can also redirect the output to a file and create your new roles from the ge
 
 ```bash
 $ kube-role-gen > foo-clusterrole.yaml
-2020/02/07 22:42:54 Group: v1
-2020/02/07 22:42:54 Resource: bindings - Verbs: [create]
-2020/02/07 22:42:54 Resource: componentstatuses - Verbs: [get list]
-2020/02/07 22:42:54 Resource: configmaps - Verbs: [create delete deletecollection get list patch update watch]
-2020/02/07 22:42:54 Resource: endpoints - Verbs: [create delete deletecollection get list patch update watch]
-2020/02/07 22:42:54 Resource: events - Verbs: [create delete deletecollection get list patch update watch]
-2020/02/07 22:42:54 Resource: limitranges - Verbs: [create delete deletecollection get list patch update watch]
-2020/02/07 22:42:54 Resource: namespaces - Verbs: [create delete get list patch update watch]
-2020/02/07 22:42:54 Resource: namespaces/finalize - Verbs: [update]
-2020/02/07 22:42:54 Resource: namespaces/status - Verbs: [get patch update]
-...
 
 $ kubeval foo-clusterrole.yaml
 PASS - foo-clusterrole.yaml contains a valid ClusterRole

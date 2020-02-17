@@ -1,6 +1,6 @@
 # kube-role-gen - Create a complete Kubernetes RBAC Role
 
-![Go](https://github.com/coopernetes/kube-role-gen/workflows/Go/badge.svg)
+[![Go](https://github.com/coopernetes/kube-role-gen/workflows/Go/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coopernetes/kube-role-gen)](https://goreportcard.com/report/github.com/coopernetes/kube-role-gen)
 
 This binary will generate a valid Kubernetes RBAC role that contains every resource available on a cluster, including subresources. It will walk the API of the connected cluster and gather all available resources. All discovered resources will be grouped by their unique API group & supported verbs combinations so a complete & granular RBAC role may be created.

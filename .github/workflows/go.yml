@@ -23,8 +23,9 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
-      run: go build -v .    
+    - name: Install
+      run: |
+        go install -v .
 
     - uses: engineerd/setup-kind@v0.3.0
     - name: Validate kind cluster is running

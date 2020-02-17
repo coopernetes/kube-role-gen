@@ -36,19 +36,19 @@ func main() {
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		log.Printf("ERROR! Unable to build a valid Kubernetes config, %s", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Printf("Error during Kubernetes client initialization, %s", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	apiResourceListArray, err := clientset.Discovery().ServerResources()
 	if err != nil {
 		log.Printf("Error during server resource discovery, %s", err.Error())
-		return
+		os.Exit(1)
 	}
 
 	computedPolicyRules := make([]rbacv1.PolicyRule, 0)
@@ -108,7 +108,7 @@ func main() {
 	e := serializer.Encode(completeRbac, writer)
 	if e != nil {
 		log.Printf("Error encountered during YAML encoding, %s", e.Error())
-		return
+		os.Exit(1)
 	}
 	fmt.Println(writer.String())
 }

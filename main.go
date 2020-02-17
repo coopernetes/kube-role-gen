@@ -17,9 +17,16 @@ import (
 )
 
 func main() {
+
+	var roleNameArg string
+	flag.StringVar(&roleNameArg, "name", "foo-clusterrole", "Override the name of the ClusterRole resource that is generated")
+
+	var enableVerboseLogging bool
+	flag.BoolVar(&enableVerboseLogging, "v", false, "Enable verbose logging")
+
 	var kubeconfig *string
 	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "absolute path to kubeconfig file")
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
@@ -48,7 +55,9 @@ func main() {
 
 	for _, apiResourceList := range apiResourceListArray {
 
-		log.Printf("Group: %s", apiResourceList.GroupVersion)
+		if enableVerboseLogging == true {
+			log.Printf("Group: %s", apiResourceList.GroupVersion)
+		}
 		// rbac rules only look at API group names, not name & version
 		groupOnly := strings.Split(apiResourceList.GroupVersion, "/")[0]
 		// core API doesn't have a group "name". In rbac policy rules, its a blank string
@@ -59,9 +68,11 @@ func main() {
 		resourceList := make([]string, 0)
 		uniqueVerbs := make(map[string]bool)
 		for _, apiResource := range apiResourceList.APIResources {
-			log.Printf("Resource: %s - Verbs: %s",
-				apiResource.Name,
-				apiResource.Verbs.String())
+			if enableVerboseLogging == true {
+				log.Printf("Resource: %s - Verbs: %s",
+					apiResource.Name,
+					apiResource.Verbs.String())
+			}
 
 			resourceList = append(resourceList, apiResource.Name)
 			for _, verb := range apiResource.Verbs {
@@ -87,7 +98,7 @@ func main() {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "foo-clusterrole",
+			Name: roleNameArg,
 		},
 		Rules: computedPolicyRules,
 	}

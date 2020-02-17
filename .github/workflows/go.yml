@@ -28,7 +28,7 @@ jobs:
         go install -v .
 
     - uses: engineerd/setup-kind@v0.3.0
-    - name: Validate kind cluster is running
+    - name: Run Kubernetes tests
       run: |
         kubectl cluster-info
         wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz

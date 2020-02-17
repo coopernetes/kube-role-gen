@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-go build
-./kube-role-gen | kubeval -
+kube-role-gen | kubeval -
+kube-role-gen | kubectl apply --validate -f -

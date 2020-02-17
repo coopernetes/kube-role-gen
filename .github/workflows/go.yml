@@ -24,8 +24,15 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build -v .    
+
     - uses: engineerd/setup-kind@v0.3.0
-    - uses: stefanprodan/kube-tools@v1
-    - name: Tests
-      run: tests/valid-cr.sh
+    - name: Validate kind cluster is running
+      run: |
+        kubectl cluster-info
+
+    - name: Kubernetes tests
+      uses: stefanprodan/kube-tools@v1
+      with:
+        command: |
+          tests/valid-cr.sh

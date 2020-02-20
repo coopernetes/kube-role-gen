@@ -13,11 +13,15 @@ This utility was inspired by [this original bash implementation](https://stackov
 
 ## Install
 
-Ensure that your GOPATH is included in your path:
+Download the latest [release](https://github.com/coopernetes/kube-role-gen/releases):
 
 ```bash
-PATH="$PATH:$(go env GOPATH)/bin"
+wget https://github.com/coopernetes/kube-role-gen/releases/download/v0.0.1/kube-role-gen_0.0.1_Linux_x86_64.tar.gz
+tar xf kube-role-gen_0.0.1_Linux_x86_64.tar.gz
+mv kube-role-gen /usr/local/bin/
 ```
+
+You can also download this as a Go module:
 
 ```bash
 GO111MODULE="on" go get github.com/coopernetes/kube-role-gen

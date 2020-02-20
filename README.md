@@ -21,9 +21,10 @@ tar xf kube-role-gen_0.0.1_Linux_x86_64.tar.gz
 mv kube-role-gen /usr/local/bin/
 ```
 
-You can also download this as a Go module:
+You can also install as a Go module. Ensure you have `$GOPATH/bin` on your `$PATH`:
 
 ```bash
+PATH="$(go env GOPATH)/bin:$PATH"
 GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
 ```
 
@@ -33,7 +34,7 @@ GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
 $ kube-role-gen -h
 Usage of kube-role-gen:
   -kubeconfig string
-        (optional) absolute path to the kubeconfig file (default "/home/tom/.kube/config")
+        (optional) absolute path to the kubeconfig file (default "/home/user/.kube/config")
   -name string
         Override the name of the ClusterRole resource that is generated (default "foo-clusterrole")
   -v    Enable verbose logging

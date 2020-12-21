@@ -24,7 +24,7 @@ jobs:
         fi
         go install -v .
 
-    - uses: engineerd/setup-kind@v0.3.0
+    - uses: engineerd/setup-kind@v0.5.0
     - name: Run Kubernetes tests
       run: |
         kubectl cluster-info

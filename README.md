@@ -54,16 +54,43 @@ rules:
   - ""
   resources:
   - bindings
+  - pods/binding
+  - pods/eviction
+  - serviceaccounts/token
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
   - componentstatuses
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
   - configmaps
   - endpoints
   - events
   - limitranges
-  - namespaces
-  - namespaces/finalize
-  - namespaces/status
   - nodes
-  - nodes/proxy
+  - persistentvolumeclaims
+  - persistentvolumes
+  - pods
+  - podtemplates
+  - replicationcontrollers
+  - resourcequotas
+  - secrets
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
 ...
 ```
 

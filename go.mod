@@ -3,7 +3,7 @@ module github.com/coopernetes/kube-role-gen
 go 1.13
 
 require (
-	github.com/elliotchance/orderedmap v1.3.0 // indirect
+	github.com/elliotchance/orderedmap v1.3.0
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	golang.org/x/crypto v0.0.0-20200117160349-530e935923ad // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect

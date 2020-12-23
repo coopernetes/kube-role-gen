@@ -7,9 +7,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
-
+	"github.com/elliotchance/orderedmap"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -52,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	resourcesByGroupAndVerb := make(map[string][]string)
+	resourcesByGroupAndVerb := orderedmap.NewOrderedMap()
 	for _, apiResourceList  := range apiResourceListArray {
 		if enableVerboseLogging {
 			log.Printf("Group: %s", apiResourceList.GroupVersion)
@@ -91,18 +90,13 @@ func main() {
 			sb.WriteString(groupOnly)
 			sb.WriteString("!")
 			sb.WriteString(k)
-			resourcesByGroupAndVerb[sb.String()] = resourcesByVerb[k]
+			resourcesByGroupAndVerb.Set(sb.String(), resourcesByVerb[k])
 		}
 	}
 
 	computedPolicyRules := make([]rbacv1.PolicyRule, 0)
-	keys := make([]string, 0)
-	for k := range resourcesByGroupAndVerb {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		splitKey := strings.Split(k, "!")
+	for _, k := range resourcesByGroupAndVerb.Keys() {
+		splitKey := strings.Split(k.(string), "!")
 		if len(splitKey) != 2 {
 			log.Fatalf("Unexpected output from API: %s", k)
 		}
@@ -111,10 +105,13 @@ func main() {
 		if splitKey[0] == "core" {
 			apiGroup = ""
 		}
+
+		value, _ := resourcesByGroupAndVerb.Get(k)
+
 		newPolicyRule := &rbacv1.PolicyRule{
 			APIGroups: []string{apiGroup},
 			Verbs:     splitVerbList,
-			Resources: resourcesByGroupAndVerb[k],
+			Resources: value.([]string),
 		}
 		computedPolicyRules = append(computedPolicyRules, *newPolicyRule)
 	}

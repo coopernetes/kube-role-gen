@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
+	"github.com/elliotchance/orderedmap"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -51,47 +51,70 @@ func main() {
 		os.Exit(1)
 	}
 
-	computedPolicyRules := make([]rbacv1.PolicyRule, 0)
-
-	for _, apiResourceList := range apiResourceListArray {
-
-		if enableVerboseLogging == true {
+	resourcesByGroupAndVerb := orderedmap.NewOrderedMap()
+	for _, apiResourceList  := range apiResourceListArray {
+		if enableVerboseLogging {
 			log.Printf("Group: %s", apiResourceList.GroupVersion)
 		}
 		// rbac rules only look at API group names, not name & version
 		groupOnly := strings.Split(apiResourceList.GroupVersion, "/")[0]
-		// core API doesn't have a group "name". In rbac policy rules, its a blank string
-		if groupOnly == "v1" {
-			groupOnly = ""
+		// core API doesn't have a group "name". We set to "core" and replace at the end with a blank string in the rbac policy rule
+		if apiResourceList.GroupVersion == "v1" {
+			groupOnly = "core"
 		}
 
 		resourceList := make([]string, 0)
-		uniqueVerbs := make(map[string]bool)
+		resourcesByVerb := make(map[string][]string)
 		for _, apiResource := range apiResourceList.APIResources {
-			if enableVerboseLogging == true {
+			if enableVerboseLogging {
 				log.Printf("Resource: %s - Verbs: %s",
 					apiResource.Name,
 					apiResource.Verbs.String())
 			}
 
 			resourceList = append(resourceList, apiResource.Name)
+			verbList := make([]string, 0)
 			for _, verb := range apiResource.Verbs {
-				uniqueVerbs[verb] = true
+				verbList = append(verbList, verb)
+			}
+			verbString := strings.Join(verbList[:], ",")
+			if value,ok := resourcesByVerb[verbString]; ok {
+				resourcesByVerb[verbString] = append(value, apiResource.Name)
+			} else {
+				resourcesByVerb[verbString] = []string {apiResource.Name}
 			}
 		}
 
-		verbList := mapSetToList(uniqueVerbs)
-
-		newPolicyRule := &rbacv1.PolicyRule{
-			APIGroups: []string{groupOnly},
-			Verbs:     verbList,
-			Resources: resourceList,
+		for k := range resourcesByVerb {
+			var sb strings.Builder
+			sb.WriteString(groupOnly)
+			sb.WriteString("!")
+			sb.WriteString(k)
+			resourcesByGroupAndVerb.Set(sb.String(), resourcesByVerb[k])
 		}
-
-		computedPolicyRules = append(computedPolicyRules, *newPolicyRule)
-
 	}
 
+	computedPolicyRules := make([]rbacv1.PolicyRule, 0)
+	for _, k := range resourcesByGroupAndVerb.Keys() {
+		splitKey := strings.Split(k.(string), "!")
+		if len(splitKey) != 2 {
+			log.Fatalf("Unexpected output from API: %s", k)
+		}
+		splitVerbList := strings.Split(splitKey[1], ",")
+		apiGroup := splitKey[0]
+		if splitKey[0] == "core" {
+			apiGroup = ""
+		}
+
+		value, _ := resourcesByGroupAndVerb.Get(k)
+
+		newPolicyRule := &rbacv1.PolicyRule{
+			APIGroups: []string{apiGroup},
+			Verbs:     splitVerbList,
+			Resources: value.([]string),
+		}
+		computedPolicyRules = append(computedPolicyRules, *newPolicyRule)
+	}
 	completeRbac := &rbacv1.ClusterRole{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",

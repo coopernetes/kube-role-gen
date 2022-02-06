@@ -16,8 +16,8 @@ This utility was inspired by [this original bash implementation](https://stackov
 Download the latest [release](https://github.com/coopernetes/kube-role-gen/releases):
 
 ```bash
-wget https://github.com/coopernetes/kube-role-gen/releases/download/v0.0.2/kube-role-gen_0.0.2_Linux_x86_64.tar.gz
-tar xf kube-role-gen_0.0.2_Linux_x86_64.tar.gz
+curl -LO https://github.com/coopernetes/kube-role-gen/releases/download/v0.0.3/kube-role-gen_0.0.3_Linux_x86_64.tar.gz
+tar xf kube-role-gen_0.0.3_Linux_x86_64.tar.gz
 mv kube-role-gen /usr/local/bin/
 ```
 

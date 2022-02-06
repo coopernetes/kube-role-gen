@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"path/filepath"
 	"strings"
 	"github.com/elliotchance/orderedmap"
@@ -63,7 +64,6 @@ func main() {
 			groupOnly = "core"
 		}
 
-		resourceList := make([]string, 0)
 		resourcesByVerb := make(map[string][]string)
 		for _, apiResource := range apiResourceList.APIResources {
 			if enableVerboseLogging {
@@ -72,11 +72,11 @@ func main() {
 					apiResource.Verbs.String())
 			}
 
-			resourceList = append(resourceList, apiResource.Name)
 			verbList := make([]string, 0)
 			for _, verb := range apiResource.Verbs {
 				verbList = append(verbList, verb)
 			}
+			sort.Strings(verbList)
 			verbString := strings.Join(verbList[:], ",")
 			if value,ok := resourcesByVerb[verbString]; ok {
 				resourcesByVerb[verbString] = append(value, apiResource.Name)
@@ -90,7 +90,19 @@ func main() {
 			sb.WriteString(groupOnly)
 			sb.WriteString("!")
 			sb.WriteString(k)
-			resourcesByGroupAndVerb.Set(sb.String(), resourcesByVerb[k])
+			if resourceVal,exists := resourcesByGroupAndVerb.Get(sb.String()); exists {
+				resourceSetMap := make(map[string]bool);
+				for _,r := range resourceVal.([]string) {
+					resourceSetMap[r] = true
+				}
+				for _,r := range resourcesByVerb[k] {
+					resourceSetMap[r] = true
+				}
+				resourceSet := mapSetToList(resourceSetMap)
+				resourcesByGroupAndVerb.Set(sb.String(), resourceSet)
+			} else {
+				resourcesByGroupAndVerb.Set(sb.String(), resourcesByVerb[k])
+			}
 		}
 	}
 

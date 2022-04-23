@@ -12,6 +12,6 @@ kube-role-gen -json | python -m json.tool 2>&1 > /dev/null
 # https://github.com/coopernetes/kube-role-gen/issues/14
 if [ -f "$HOME/.kube/config" ]; then
     cp $HOME/.kube/config /tmp/test-kubecfg
-    KUBECONFIG=/tmp/test-kubecfg kube-role-gen
-    kube-role-gen -kubeconfig /tmp/test-kubecfg
+    KUBECONFIG=/tmp/test-kubecfg kube-role-gen | kubeval -
+    kube-role-gen -kubeconfig /tmp/test-kubecfg | kubeval -
 fi

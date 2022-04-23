@@ -4,57 +4,54 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"log"
-	"os"
-	"sort"
-	"path/filepath"
-	"strings"
 	"github.com/elliotchance/orderedmap"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8sJson "k8s.io/apimachinery/pkg/runtime/serializer/json"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/tools/clientcmd"
+	"log"
+	"os"
+	"sort"
+	"strings"
 )
 
 func main() {
 
-	var roleNameArg string
-	flag.StringVar(&roleNameArg, "name", "foo-clusterrole", "Override the name of the ClusterRole resource that is generated")
+	roleNameArg := flag.String("name", "foo-clusterrole", "Override the name of the ClusterRole resource that is generated")
+	enableVerboseLogging := flag.Bool("v", false, "Enable verbose logging")
+	kubeconfigFlag := flag.String("kubeconfig", "", "absolute path to the kubeconfig file. If set, this will override the default behavior for KUBECONFIG env vars or $HOME/.kube/config file locations.")
 
-	var enableVerboseLogging bool
-	flag.BoolVar(&enableVerboseLogging, "v", false, "Enable verbose logging")
-
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "absolute path to kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	if *kubeconfigFlag != "" {
+		loadingRules.ExplicitPath = *kubeconfigFlag
 	}
-	flag.Parse()
+	configOverrides := &clientcmd.ConfigOverrides{}
 
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		log.Printf("ERROR! Unable to build a valid Kubernetes config, %s", err.Error())
-		os.Exit(1)
-	}
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 
-	clientset, err := kubernetes.NewForConfig(config)
+	restConfig, err := clientConfig.ClientConfig()
 	if err != nil {
 		log.Printf("Error during Kubernetes client initialization, %s", err.Error())
 		os.Exit(1)
 	}
 
-	apiResourceListArray, err := clientset.Discovery().ServerResources()
+	dClient, err := discovery.NewDiscoveryClientForConfig(restConfig)
+	if err != nil {
+		log.Printf("Error during discovery client setup, %s", err.Error())
+		os.Exit(1)
+	}
+
+	_, apiResourceListArray, err := dClient.ServerGroupsAndResources()
 	if err != nil {
 		log.Printf("Error during server resource discovery, %s", err.Error())
 		os.Exit(1)
 	}
 
 	resourcesByGroupAndVerb := orderedmap.NewOrderedMap()
-	for _, apiResourceList  := range apiResourceListArray {
-		if enableVerboseLogging {
+	for _, apiResourceList := range apiResourceListArray {
+		if *enableVerboseLogging {
 			log.Printf("Group: %s", apiResourceList.GroupVersion)
 		}
 		// rbac rules only look at API group names, not name & version
@@ -66,7 +63,7 @@ func main() {
 
 		resourcesByVerb := make(map[string][]string)
 		for _, apiResource := range apiResourceList.APIResources {
-			if enableVerboseLogging {
+			if *enableVerboseLogging {
 				log.Printf("Resource: %s - Verbs: %s",
 					apiResource.Name,
 					apiResource.Verbs.String())
@@ -78,10 +75,10 @@ func main() {
 			}
 			sort.Strings(verbList)
 			verbString := strings.Join(verbList[:], ",")
-			if value,ok := resourcesByVerb[verbString]; ok {
+			if value, ok := resourcesByVerb[verbString]; ok {
 				resourcesByVerb[verbString] = append(value, apiResource.Name)
 			} else {
-				resourcesByVerb[verbString] = []string {apiResource.Name}
+				resourcesByVerb[verbString] = []string{apiResource.Name}
 			}
 		}
 
@@ -90,12 +87,12 @@ func main() {
 			sb.WriteString(groupOnly)
 			sb.WriteString("!")
 			sb.WriteString(k)
-			if resourceVal,exists := resourcesByGroupAndVerb.Get(sb.String()); exists {
-				resourceSetMap := make(map[string]bool);
-				for _,r := range resourceVal.([]string) {
+			if resourceVal, exists := resourcesByGroupAndVerb.Get(sb.String()); exists {
+				resourceSetMap := make(map[string]bool)
+				for _, r := range resourceVal.([]string) {
 					resourceSetMap[r] = true
 				}
-				for _,r := range resourcesByVerb[k] {
+				for _, r := range resourcesByVerb[k] {
 					resourceSetMap[r] = true
 				}
 				resourceSet := mapSetToList(resourceSetMap)
@@ -133,7 +130,7 @@ func main() {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: roleNameArg,
+			Name: *roleNameArg,
 		},
 		Rules: computedPolicyRules,
 	}
@@ -156,11 +153,4 @@ func mapSetToList(initialMap map[string]bool) []string {
 		i++
 	}
 	return list
-}
-
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
 }

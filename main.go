@@ -136,7 +136,7 @@ func main() {
 		Rules: computedPolicyRules,
 	}
 
-	serializer := k8sJson.NewYAMLSerializer(k8sJson.DefaultMetaFactory, nil, nil)
+	serializer := k8sJson.NewSerializerWithOptions(k8sJson.DefaultMetaFactory, nil, nil, k8sJson.SerializerOptions{Yaml: true})
 	var writer = bytes.NewBufferString("")
 	e := serializer.Encode(completeRbac, writer)
 	if e != nil {

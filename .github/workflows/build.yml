@@ -1,4 +1,4 @@
-name: Go & K8s build
+name: build/test
 on:
   push:
     branches:

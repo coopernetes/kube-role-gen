@@ -7,7 +7,7 @@ kube-role-gen | kubectl apply --validate -f -
 kube-role-gen | conftest test --policy tests/gh-11.rego -
 
 # https://github.com/coopernetes/kube-role-gen/issues/8
-kube-role-gen -json | python -m json.tool
+kube-role-gen -json | python -m json.tool 2>&1 > /dev/null
 
 # https://github.com/coopernetes/kube-role-gen/issues/14
 if [ -f "$HOME/.kube/config" ]; then

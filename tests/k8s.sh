@@ -8,7 +8,7 @@ kube-role-gen | conftest test --policy tests/gh-11.rego -
 
 # https://github.com/coopernetes/kube-role-gen/issues/14
 if [ -f "$HOME/.kube/config" ]; then
-    mv $HOME/.kube/config $HOME/.kube/config.bak
+    mv $HOME/.kube/config /tmp/test-kubecfg
     KUBECONFIG=/tmp/test-kubecfg kube-role-gen
-    kube-role-gen -kubeconfig $HOME/.kube/config.bak
+    kube-role-gen -kubeconfig /tmp/test-kubecfg
 fi

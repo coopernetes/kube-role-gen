@@ -30,11 +30,8 @@ func main() {
 	if *kubeconfigFlag != "" {
 		loadingRules.ExplicitPath = *kubeconfigFlag
 	}
-	configOverrides := &clientcmd.ConfigOverrides{}
 
-	// use the current context in kubeconfig
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &clientcmd.ConfigOverrides{})
 	restConfig, err := clientConfig.ClientConfig()
 	if err != nil {
 		log.Printf("Error during Kubernetes client initialization, %s", err.Error())

@@ -33,11 +33,15 @@ GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
 ```bash
 $ kube-role-gen -h
 Usage of kube-role-gen:
+  -json
+        Generate JSON output. If unset, will default to YAML.
   -kubeconfig string
-        (optional) absolute path to the kubeconfig file (default "/home/user/.kube/config")
+        absolute path to the kubeconfig file. If set, this will override the default behavior and ignore KUBECONFIG environment variable and/or $HOME/.kube/config file location.
   -name string
         Override the name of the ClusterRole resource that is generated (default "foo-clusterrole")
-  -v    Enable verbose logging
+  -pretty
+        Enable human-readable JSON output. This flag is ignored for YAML (always pretty-prints).
+  -v    Enable verbose logging.
 ```
 
 The resulting `ClusterRole` resource will be printed to stdout in YAML format.

@@ -18,9 +18,13 @@ import (
 
 func main() {
 
-	roleNameArg := flag.String("name", "foo-clusterrole", "Override the name of the ClusterRole resource that is generated")
+	roleNameArg := flag.String("name", "foo-clusterrole", "Override the name of the ClusterRole "+
+		"resource that is generated")
 	enableVerboseLogging := flag.Bool("v", false, "Enable verbose logging")
-	kubeconfigFlag := flag.String("kubeconfig", "", "absolute path to the kubeconfig file. If set, this will override the default behavior for KUBECONFIG env vars or $HOME/.kube/config file locations.")
+	kubeconfigFlag := flag.String("kubeconfig", "", "absolute path to the kubeconfig file. "+
+		"If set, this will override the default behavior and "+
+		"ignore KUBECONFIG environment variable and/or $HOME/.kube/config file location.")
+	flag.Parse()
 
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	if *kubeconfigFlag != "" {

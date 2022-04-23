@@ -1,8 +1,5 @@
-name: Go & K8s build
-on:
-  push:
-    branches:
-      - "*"
+name: build/test
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest

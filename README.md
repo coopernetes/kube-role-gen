@@ -3,13 +3,18 @@
 [![Go](https://github.com/coopernetes/kube-role-gen/workflows/Go/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coopernetes/kube-role-gen)](https://goreportcard.com/report/github.com/coopernetes/kube-role-gen)
 
-`kube-role-gen` is a command-line utility that will generate a Kubernetes ClusterRole that contains every resource available on a connected cluster, including sub-resources & custom resources. All rules will be grouped by their unique API group & supported verbs combinations so a granular ClusterRole or Role may be created.
+`kube-role-gen` is a command-line utility that will generate a Kubernetes ClusterRole that contains every resource available on a connected cluster, including sub-resources & custom resources. Each entry in the ClusterRole rules are grouped by API group and the combination of unique resource type + supported verbs. This is different from something like `kubectl create role ... -o yaml --dry-run=client`, which groups resources together even if they all don't support the same verb (ie. `pods/exec` have permission `patch` - this resource type doesn't actually support the patch verb).
 
-This is useful when you want to define a role with broad set of permissions while explicitly excluding a small subset of them. An example might be a cluster administrator who should have no access to namespace Secrets, ServiceAccounts or RBAC Roles/Bindings. Until Kubernetes supports [substraction via role aggregation](https://github.com/kubernetes/kubernetes/issues/70387), this tool is useful as a starting point to generate roles programmatically.
+## Why create this?
+* In secure environments, even cluster admins shouldn't have access to everything. Access to resources such as namespace creation/delete, rolebindings, etc. should be reserved for cluster management tools, pipelines or scripts.
+* Kubernetes will likely never support [role aggregation via subtraction](https://github.com/kubernetes/kubernetes/issues/70387).
+* Sub-resources such as `pods/exec` are not accessible via any `kubectl` tool. It must be queried using Kubernetes API discovery via a client.
+* I didn't want to maintain the [original bash script](https://stackoverflow.com/a/57892189) to do the same thing. Props to [Vit on stackoverflow](https://stackoverflow.com/users/9929015/vit) for providing the idea for this utility.
+* It's my own excuse to learn Go for something I need at work.
 
-Another neat feature of `kube-role-gen` is defining a role that relies heavily on sub-resources. Sub-resources such as `pod/exec` do not show up in any static list such as `kubectl api-resources -o wide` and must be discovered by interacting with the Kubernetes API directly. See this [stackoverflow answer for additional details](https://stackoverflow.com/a/51289417).
-
-This utility was inspired by [this original bash implementation](https://stackoverflow.com/a/57892189).
+_Alternatives_:
+- Use privileged access management for any elevated permissions inside Kubernetes.
+- Use a tool such as [audit2rbac](https://github.com/liggitt/audit2rbac) to generate a least-privilege role based on what your cluster users are actually deploying
 
 ## Install
 

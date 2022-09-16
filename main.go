@@ -1,6 +1,7 @@
 package main
 
 import (
+	rolegen "github.com/coopernetes/kube-role-gen/cmd/rolegen"
 	"bytes"
 	"flag"
 	"fmt"
@@ -17,7 +18,10 @@ import (
 )
 
 func main() {
+	rolegen.Run()
+}
 
+func old_main() {
 	roleNameArg := flag.String("name", "foo-clusterrole", "Override the name of the ClusterRole "+
 		"resource that is generated")
 	enableVerboseLogging := flag.Bool("v", false, "Enable verbose logging.")

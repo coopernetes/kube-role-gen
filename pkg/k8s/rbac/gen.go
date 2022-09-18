@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"sort"
-	"github.com/coopernetes/kube-role-gen/pkg/util"
+	"github.com/coopernetes/kube-role-gen/internal/util"
 	"github.com/elliotchance/orderedmap"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -7,7 +7,7 @@ import (
 	"log"
 	"bytes"
 	jsonSer "k8s.io/apimachinery/pkg/runtime/serializer/json"
-	client "github.com/coopernetes/kube-role-gen/pkg/k8s"
+	client "github.com/coopernetes/kube-role-gen/internal/k8s"
 	gen "github.com/coopernetes/kube-role-gen/pkg/k8s/rbac"
 )
 

@@ -15,3 +15,6 @@ if [ -f "$HOME/.kube/config" ]; then
     KUBECONFIG=/tmp/test-kubecfg kube-role-gen | kubeval -
     kube-role-gen -kubeconfig /tmp/test-kubecfg | kubeval -
 fi
+
+kubectl apply --validate=false -f tests/crd.yaml
+kube-role-gen | conftest test --policy tests/gh-7.rego -

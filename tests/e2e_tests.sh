@@ -16,7 +16,7 @@ if [ -f "$HOME/.kube/config" ]; then
     kube-role-gen -kubeconfig /tmp/test-kubecfg | kubeval -
 fi
 
-kubectl apply -f tests/crd.yaml
+kubectl apply --validate=false -f tests/crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/BuddhiWathsala/helloworld-k8s-operator/v0.4.0/deploy/service_account.yaml
 kubectl apply -f https://raw.githubusercontent.com/BuddhiWathsala/helloworld-k8s-operator/v0.4.0/deploy/role.yaml
 kubectl apply -f https://raw.githubusercontent.com/BuddhiWathsala/helloworld-k8s-operator/v0.4.0/deploy/role_binding.yaml

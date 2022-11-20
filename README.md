@@ -41,11 +41,10 @@ tar xf kube-role-gen_0.0.4_Linux_x86_64.tar.gz
 mv kube-role-gen /usr/local/bin/
 ```
 
-You can also install as a Go module. Ensure you have `$GOPATH/bin` on your `$PATH`:
+You can also install as a Go module.
 
 ```bash
-PATH="$(go env GOPATH)/bin:$PATH"
-GO111MODULE="on" go get github.com/coopernetes/kube-role-gen
+go install github.com/coopernetes/kube-role-gen
 ```
 
 ## Usage
@@ -128,4 +127,33 @@ PASS - foo-clusterrole.yaml contains a valid ClusterRole
 
 $ kubectl apply -f foo-clusterrole.yaml
 clusterrole.rbac.authorization.k8s.io/foo-clusterrole created
+```
+
+
+## Manipulation / Post-Processing
+This utility doesn't provide any post-processing out of the box. However, you can use tools such as `jq` to
+chain the output of kube-role-gen and manipulate it as you see fit. 
+
+Here's a few common "recipes" for manipulating the role that is generated:
+
+_No delete access_
+```shell
+kube-role-gen -json | jq 'del(.rules[].verbs[] |           
+select((. == "delete") or (. == "deletecollection")))'
+```
+
+_Read-only access to all resources_
+```shell
+kube-role-gen -json | jq 'del(.rules[].verbs[] |           
+select((. == "create") or (. == "delete") or (. == "deletecollection") or (. == "patch") or (. == "update")))'
+```
+
+_Exclude a specific API group_
+```shell
+kube-role-gen -json | jq 'del(.rules[] | select(.apiGroups[] | contains("flowcontrol.apiserver.k8s.io")))' 
+```
+
+_Exclude multiple API groups_
+```shell
+kube-role-gen -json | jq 'del(.rules[] | select(.apiGroups[] | contains("scheduling.k8s.io") or contains("flowcontrol.apiserver.k8s.io") or contains("node.k8s.io")))'
 ```

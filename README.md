@@ -1,7 +1,8 @@
-# kube-role-gen - Create a complete Kubernetes RBAC Role
-
+# kube-role-gen
 [![Go](https://github.com/coopernetes/kube-role-gen/workflows/Go/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coopernetes/kube-role-gen)](https://goreportcard.com/report/github.com/coopernetes/kube-role-gen)
+
+_Create a complete Kubernetes RBAC role_
 
 `kube-role-gen` is a command-line utility that will generate a Kubernetes
 ClusterRole that contains every resource available on a connected cluster,

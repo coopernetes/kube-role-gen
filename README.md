@@ -36,8 +36,8 @@ _Alternatives_:
 Download the latest [release](https://github.com/coopernetes/kube-role-gen/releases):
 
 ```bash
-curl -LO https://github.com/coopernetes/kube-role-gen/releases/download/v0.0.4/kube-role-gen_0.0.4_Linux_x86_64.tar.gz
-tar xf kube-role-gen_0.0.4_Linux_x86_64.tar.gz
+curl -LO https://github.com/coopernetes/kube-role-gen/releases/download/v0.0.5/kube-role-gen_0.0.5_Linux_x86_64.tar.gz
+tar xf kube-role-gen_0.0.5_Linux_x86_64.tar.gz
 mv kube-role-gen /usr/local/bin/
 ```
 

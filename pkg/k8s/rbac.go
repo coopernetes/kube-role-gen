@@ -86,6 +86,7 @@ func mergeVerbMaps(left map[string][]string, right map[string][]string) map[stri
 		merged[k] = left[k]
 	}
 	for k := range right {
+		var values []string
 		if val, ok := merged[k]; ok {
 			set := make(map[string]bool)
 			for _, v := range right[k] {
@@ -94,10 +95,15 @@ func mergeVerbMaps(left map[string][]string, right map[string][]string) map[stri
 			for _, v := range val {
 				set[v] = true
 			}
-			merged[k] = mapToSet(set)
+			toUpdate := mapToSet(set)
+			values = make([]string, len(toUpdate))
+			copy(values, toUpdate)
 		} else {
-			merged[k] = right[k]
+			values = make([]string, len(right[k]))
+			copy(values, right[k])
 		}
+		sort.Strings(values)
+		merged[k] = values
 	}
 	return merged
 }

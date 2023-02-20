@@ -11,19 +11,17 @@ jobs:
       id: go
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-    - name: Get dependencies & install
+    - name: Get dependencies, run go test & install
       run: |
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-        go install -v .
-        curl -fsSLO https://github.com/open-policy-agent/conftest/releases/download/v0.30.0/conftest_0.30.0_Linux_x86_64.tar.gz
-        tar -C /usr/local/bin -xzvf conftest_0.30.0_Linux_x86_64.tar.gz
-        wget -q https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
-        tar xf kubeval-linux-amd64.tar.gz
-        sudo cp kubeval /usr/local/bin
+        make test SHELL='bash -x'
+        make install SHELL='bash -x'
+        export PATH="$(go env GOPATH)/bin:$PATH"
+        kube-role-gen -help
     - name: Setup kind
       uses: engineerd/setup-kind@v0.5.0
       with:
@@ -31,6 +29,11 @@ jobs:
         image: kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9
     - name: Run Kubernetes tests
       run: |
+        LATEST_VERSION=$(wget -O - "https://api.github.com/repos/open-policy-agent/conftest/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | cut -c 2-)
+        wget "https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz"
+        tar xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
+        sudo mv conftest /usr/local/bin
+        go install github.com/yannh/kubeconform/cmd/kubeconform@latest
         kubectl cluster-info
         export PATH="$(go env GOPATH)/bin:$PATH"
-        tests/e2e_tests.sh
+        make e2e

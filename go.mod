@@ -3,7 +3,7 @@ module github.com/coopernetes/kube-role-gen
 go 1.19
 
 require (
-	github.com/elliotchance/orderedmap v1.5.0
+	github.com/elliotchance/orderedmap/v2 v2.2.0
 	k8s.io/api v0.26.1
 	k8s.io/apimachinery v0.26.1
 	k8s.io/client-go v0.26.1

@@ -1,6 +1,7 @@
 # kube-role-gen
-[![Go](https://github.com/coopernetes/kube-role-gen/workflows/Go/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
+[![build](https://github.com/coopernetes/kube-role-gen/workflows/build/test/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coopernetes/kube-role-gen)](https://goreportcard.com/report/github.com/coopernetes/kube-role-gen)
+[![Go Reference](https://pkg.go.dev/badge/github.com/coopernetes/kube-role-gen.svg)](https://pkg.go.dev/github.com/coopernetes/kube-role-gen)
 
 _Create a complete Kubernetes RBAC role_
 

@@ -1,5 +1,5 @@
 # kube-role-gen
-[![build](https://github.com/coopernetes/kube-role-gen/workflows/build/test/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3AGo)
+[![build](https://github.com/coopernetes/kube-role-gen/workflows/build/test/badge.svg)](https://github.com/coopernetes/kube-role-gen/actions?query=workflow%3Abuild%2Ftest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coopernetes/kube-role-gen)](https://goreportcard.com/report/github.com/coopernetes/kube-role-gen)
 [![Go Reference](https://pkg.go.dev/badge/github.com/coopernetes/kube-role-gen.svg)](https://pkg.go.dev/github.com/coopernetes/kube-role-gen)
 

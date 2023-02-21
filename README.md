@@ -46,7 +46,7 @@ mv kube-role-gen /usr/local/bin/
 You can also install as a Go module.
 
 ```bash
-go install github.com/coopernetes/kube-role-gen
+go install github.com/coopernetes/kube-role-gen/cmd/kube-role-gen@latest
 ```
 
 ## Usage

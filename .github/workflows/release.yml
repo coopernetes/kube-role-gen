@@ -3,8 +3,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_run:
+    workflows: [build/test]
+    types: [completed]
 jobs:
   goreleaser:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       -

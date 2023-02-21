@@ -28,7 +28,7 @@ build: $(TARGET)
 test:
 	go test ./...
 
-e2e: test
+e2e:
 	tests/e2e_tests.sh
 
 clean:

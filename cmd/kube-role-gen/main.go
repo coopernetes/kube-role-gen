@@ -19,6 +19,7 @@ func main() {
 	verbose := flag.Bool("v", false, "Enable verbose logging.")
 	json := flag.Bool("json", false, "Generate JSON output. If unset, will default to YAML.")
 	jsonPretty := flag.Bool("pretty", false, "Enable human-readable JSON output. This flag is ignored for YAML (always pretty-prints).")
+	excludeDeprecated := flag.Bool("exclude-deprecated", false, "Exclude deprecated APIs (such as the extensions group) from the generated role.")
 	kubeconfig := flag.String("kubeconfig", "", "absolute path to the kubeconfig file. "+
 		"If set, this will override the default behavior and "+
 		"ignore KUBECONFIG environment variable and/or $HOME/.kube/config file location.")
@@ -39,7 +40,7 @@ func main() {
 		log.Printf("Error during resource discovery: %s", err.Error())
 		os.Exit(1)
 	}
-	cr := k8s.CreateGranularRole(list, *name, *verbose)
+	cr := k8s.CreateGranularRole(list, *name, *verbose, *excludeDeprecated)
 	if err != nil {
 		log.Printf("Error during role creation, %s", err.Error())
 		os.Exit(1)

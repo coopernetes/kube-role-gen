@@ -54,6 +54,8 @@ go install github.com/coopernetes/kube-role-gen/cmd/kube-role-gen@latest
 ```bash
 $ kube-role-gen -h
 Usage of kube-role-gen:
+  -exclude-deprecated
+        Exclude deprecated APIs (such as the extensions group) from the generated role.
   -json
         Generate JSON output. If unset, will default to YAML.
   -kubeconfig string

@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+var deprecatedAPIGroups = []string{"extensions"}
+
 // CreateGranularRole creates a ClusterRole where each rules entry contains only the specific combination of API group
 // and supported verbs for each resource. Resources with matching verbs are grouped together in a single PolicyRule.
 // This differs from other implementations such as `kubectl create clusterrole` which will group together resources
@@ -21,13 +23,19 @@ import (
 //
 // All PolicyRules in the ClusterRole this function returns represents a "matrix" of all resources available on the API
 // and contains only the list of the supported verbs that resource handles.
-func CreateGranularRole(apiResourceList []*metav1.APIResourceList, name string, verbose bool) *rbacv1.ClusterRole {
+func CreateGranularRole(apiResourceList []*metav1.APIResourceList, name string, verbose bool, excludeDeprecated bool) *rbacv1.ClusterRole {
 	oMap := orderedmap.NewOrderedMap[string, map[string][]string]()
 	for _, resourceList := range apiResourceList {
 		if verbose {
 			log.Printf("Group %s contains %d resources", resourceList.GroupVersion, len(resourceList.APIResources))
 		}
 		groupName := extractGroupFromVersion(resourceList.GroupVersion)
+		if excludeDeprecated && isDeprecatedAPIGroup(groupName) {
+			if verbose {
+				log.Printf("Excluding deprecated API group %s", resourceList.GroupVersion)
+			}
+			continue
+		}
 		if slices.Contains(oMap.Keys(), groupName) {
 			left, _ := oMap.Get(groupName)
 			right := convertToVerbMap(resourceList.APIResources, verbose)
@@ -47,6 +55,10 @@ func CreateGranularRole(apiResourceList []*metav1.APIResourceList, name string, 
 		},
 		Rules: policyRules,
 	}
+}
+
+func isDeprecatedAPIGroup(group string) bool {
+	return slices.Contains(deprecatedAPIGroups, group)
 }
 
 func extractGroupFromVersion(groupVersion string) string {

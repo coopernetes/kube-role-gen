@@ -1,39 +1,36 @@
 name: build/test
-on: push, pull_request]
+on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Set up Go 1.23
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.23
-      id: go
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-    - name: Get dependencies, run go test & install
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
-        make test SHELL='bash -x'
-        make install SHELL='bash -x'
-        export PATH="$(go env GOPATH)/bin:$PATH"
-        kube-role-gen -help
-    - name: Setup kind
-      uses: engineerd/setup-kind@v0.5.0
-      with:
-        version: "v0.12.0"
-        image: kindest/node:v1.23.4@sha256:0e34f0d0fd448aa2f2819cfd74e99fe5793a6e4938b328f657c8e3f81ee0dfb9
-    - name: Run Kubernetes tests
-      run: |
-        LATEST_VERSION=$(wget -O - "https://api.github.com/repos/open-policy-agent/conftest/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | cut -c 2-)
-        wget "https://github.com/open-policy-agent/conftest/releases/download/v${LATEST_VERSION}/conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz"
-        tar xzf conftest_${LATEST_VERSION}_Linux_x86_64.tar.gz
-        sudo mv conftest /usr/local/bin
-        go install github.com/yannh/kubeconform/cmd/kubeconform@latest
-        kubectl cluster-info
-        export PATH="$(go env GOPATH)/bin:$PATH"
-        make e2e
+      - name: Check out code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # ratchet:actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # ratchet:actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build, test & install
+        run: |
+          go mod download
+          make test
+          make install
+          gopath_bin="$(go env GOPATH)/bin"
+          echo "$gopath_bin" >> "$GITHUB_PATH"
+          export PATH="$gopath_bin:$PATH"
+          kube-role-gen -help
+      - name: Create kind cluster
+        uses: helm/kind-action@ef37e7f390d99f746eb8b610417061a60e82a6cc # ratchet:helm/kind-action@v1.14.0
+        with:
+          # kind binary and node image must be a matched pair: the v1.37.0 node
+          # image ships with kind v0.33.0 (older kind emits a kubeadm v1beta3
+          # config the newer node rejects).
+          version: v0.33.0
+          node_image: kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5
+      - name: Run Kubernetes e2e tests
+        run: |
+          go install github.com/yannh/kubeconform/cmd/kubeconform@latest
+          CONFTEST_VERSION=0.69.0
+          curl -sSfL "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin conftest
+          make e2e

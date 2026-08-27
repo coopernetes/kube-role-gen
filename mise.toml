@@ -1,2 +1,6 @@
 [tools]
-go = "1.23"
+go = "1.26"
+kind = "0.32"
+kubectl = "1.36"
+conftest = "latest"
+kubeconform = "latest"
